@@ -1,0 +1,36 @@
+[Unit]
+Description=LaserCube Netzwerk-Geraete-Emulator (Original-Software ueber LAN)
+Documentation=https://github.com/Joewodsen/lasercube-v1-ethernet-bridge
+After=network-online.target
+Wants=network-online.target
+# Nur EIN Prozess kann das USB-Geraet gleichzeitig oeffnen. Wer daneben noch
+# andere Dienste am selben Cube betreibt, traegt sie hier als Conflicts= ein -
+# systemd stoppt sie dann automatisch, statt dass einer mit "Interface nicht
+# belegbar" scheitert.
+# Conflicts=lasercube-bridge.service lasercube-web.service
+
+[Service]
+Type=simple
+# An den eigenen Benutzer anpassen, falls nicht 'pi'.
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/lasercube
+
+# --max-rgb: Helligkeitsdeckel. Der Emulator startet immer UNSCHARF - Licht
+# gibt es erst, wenn die Software ausdruecklich 0x80 01 schickt.
+ExecStart=/usr/bin/python3 -u lasercube_netdev.py --host 0.0.0.0 --max-rgb 255
+
+Restart=on-failure
+RestartSec=3
+
+# WICHTIG - Laser-Sicherheit: disable_output() haengt an atexit, den
+# Signal-Handlern und finally. Der Dienst MUSS deshalb mit SIGTERM beendet
+# werden und genug Zeit bekommen. Ein sofortiges SIGKILL wuerde den Prozess
+# toeten, bevor der Ausgang aus ist - der Strahl bliebe an.
+KillSignal=SIGTERM
+KillMode=mixed
+TimeoutStopSec=15
+SendSIGKILL=yes
+
+[Install]
+WantedBy=multi-user.target

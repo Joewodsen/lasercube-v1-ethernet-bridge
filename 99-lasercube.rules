@@ -1,0 +1,11 @@
+# USB-Zugriff auf den LaserCube V1 (LaserDock) ohne root.
+#
+# Installieren:
+#   sudo cp ~/lasercube/99-lasercube.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#   (Cube danach einmal ab- und wieder anstecken)
+#
+# Ohne diese Regel gehoert das USB-Geraet root und libusb bekommt beim
+# Oeffnen "Zugriff verweigert" (-3). Mit ihr darf jedes Mitglied der Gruppe
+# plugdev ran - der Benutzer pi ist dort schon drin.
+SUBSYSTEM=="usb", ATTR{idVendor}=="1fc9", ATTR{idProduct}=="04d8", MODE="0660", GROUP="plugdev", TAG+="uaccess"

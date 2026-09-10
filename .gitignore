@@ -1,0 +1,7 @@
+build/
+vendor/
+__pycache__/
+*.pyc
+*.so
+*.dylib
+.DS_Store
